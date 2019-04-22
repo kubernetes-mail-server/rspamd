@@ -20,6 +20,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Values.name }}
+            - configMapRef:
+                name: {{ .Values.namespace }}
           ports:
             - name: rspamd1
               containerPort: {{ index .Values.port 0 }}
