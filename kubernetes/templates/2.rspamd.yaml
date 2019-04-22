@@ -21,7 +21,7 @@ spec:
             - configMapRef:
                 name: {{ .Values.name }}
             - configMapRef:
-                name: {{ .Values.namespace }}
+                name: connection-map
           ports:
             - name: rspamd1
               containerPort: {{ index .Values.port 0 }}
