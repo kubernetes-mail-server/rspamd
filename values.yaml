@@ -1,14 +1,6 @@
 rspamd:
   password: "supersecret"
 
-clamav:
-  hostname: "clamav"
-  port: "3310"
-
-redis:
-  hostname: "redis"
-  port: "6379"
-
 port:
   - "11332"
   - "11333"

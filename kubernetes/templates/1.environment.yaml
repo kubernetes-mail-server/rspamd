@@ -6,9 +6,5 @@ metadata:
 data:
   ENTRYPOINT_DEBUG: ""
   RSPAMD_PASSWORD: "{{ .Values.rspamd.password }}"
-  CLAMAV_HOSTNAME: {{ quote (coalesce .Values.clamav.hostname (print "clamav." .Values.namespace)) }}
-  CLAMAV_PORT: "{{ .Values.clamav.port }}"
   WORKER_PROXY_PORT: "{{ index .Values.port 0 }}"
   WORKER_CONTROLLER_PORT: "{{ index .Values.port 2 }}"
-  REDIS_HOSTNAME: {{ quote (coalesce .Values.redis.hostname (print "redis." .Values.namespace)) }}
-  REDIS_PORT: "{{ .Values.redis.port }}"
