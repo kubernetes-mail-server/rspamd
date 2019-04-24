@@ -21,16 +21,16 @@ spec:
             - configMapRef:
                 name: {{ .Values.name }}
             - configMapRef:
-                name: connection-map
+                name: services-info
           ports:
             - name: rspamd1
-              containerPort: {{ index .Values.port 0 }}
+              containerPort: {{ .Values.port_0 }}
               protocol: TCP
             - name: rspam2
-              containerPort: {{ index .Values.port 1 }}
+              containerPort: {{ .Values.port_2 }}
               protocol: TCP
             - name: rspam3
-              containerPort: {{ index .Values.port 2 }}
+              containerPort: {{ .Values.port_2 }}
               protocol: TCP
 ---
 
@@ -45,11 +45,11 @@ spec:
     role: {{ .Values.name }}
   ports:
     - name: rspam1
-      port: {{ index .Values.port 0 }}
-      targetPort: {{ index .Values.port 0 }}
+      port: {{ .Values.port_0 }}
+      targetPort: {{ .Values.port_0 }}
     - name: rspam2
-      port: {{ index .Values.port 1 }}
-      targetPort: {{ index .Values.port 1 }}
+      port: {{ .Values.port_1 }}
+      targetPort: {{ .Values.port_1 }}
     - name: rspam3
-      port: {{ index .Values.port 2 }}
-      targetPort: {{ index .Values.port 2 }}
+      port: {{ .Values.port_2 }}
+      targetPort: {{ .Values.port_2 }}

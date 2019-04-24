@@ -21,10 +21,10 @@ function optional () {
 
 for file in $(find /etc/rspamd/local.d -type f); do
     required RSPAMD_PASSWORD ${file}
+    required RSPAMD_WORKER_PROXY_PORT ${file}
+    required RSPAMD_WORKER_CONTROLLER_PORT ${file}
     required CLAMAV_HOSTNAME ${file}
     required CLAMAV_PORT ${file}
-    required WORKER_PROXY_PORT ${file}
-    required WORKER_CONTROLLER_PORT ${file}
     required REDIS_HOSTNAME ${file}
     required REDIS_PORT ${file}
 done

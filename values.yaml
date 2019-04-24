@@ -1,7 +1,0 @@
-rspamd:
-  password: "supersecret"
-
-port:
-  - "11332"
-  - "11333"
-  - "11334"

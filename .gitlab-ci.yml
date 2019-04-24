@@ -40,13 +40,15 @@ deploy:
     - kubectl -n ${NAMESPACE} scale --replicas=0 deployment/${NAME} || true
     - kubectl -n ${NAMESPACE} get deployments
     - helm template
-      -f $PWD/values.yaml
       --set name=${NAME}
       --set namespace=${NAMESPACE}
       --set repository=${CI_REGISTRY_IMAGE}/${NAME}:${CI_PIPELINE_ID}
       --set registry=${CI_REGISTRY}
       --set username=${CI_DEPLOY_USERNAME}
       --set password=${CI_DEPLOY_PASSWORD}
+      --set port_0=$(kubectl get cm services-info -o=jsonpath="{.data.RSPAMD_PORT_0}")
+      --set port_1=$(kubectl get cm services-info -o=jsonpath="{.data.RSPAMD_PORT_1}")
+      --set port_2=$(kubectl get cm services-info -o=jsonpath="{.data.RSPAMD_PORT_2}")
       $PWD/kubernetes | kubectl apply -f -
     - kubectl -n ${NAMESPACE} scale --replicas=${REPLICAS} deployment/${NAME}
     - kubectl -n ${NAMESPACE} get deployment

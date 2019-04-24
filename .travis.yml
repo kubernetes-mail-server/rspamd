@@ -68,10 +68,12 @@ jobs:
         - kubectl scale --replicas=0 deployment/${NAME} || true
         - kubectl get deployments
         - helm template
-            -f $PWD/values.yaml
             --set name=${NAME}
             --set namespace=${NAMESPACE}
             --set repository=${IMAGE}:${TRAVIS_BUILD_ID}
+            --set port_0=$(kubectl get cm services-info -o=jsonpath="{.data.RSPAMD_PORT_0}")
+            --set port_1=$(kubectl get cm services-info -o=jsonpath="{.data.RSPAMD_PORT_1}")
+            --set port_2=$(kubectl get cm services-info -o=jsonpath="{.data.RSPAMD_PORT_2}")
             $PWD/kubernetes | kubectl apply -f -
         - kubectl scale --replicas=${REPLICAS} deployment/${NAME}
         - kubectl get deployments

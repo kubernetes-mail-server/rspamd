@@ -1,2 +1,2 @@
-bind_socket = "*:{{ WORKER_CONTROLLER_PORT }}";
+bind_socket = "*:{{ RSPAMD_WORKER_CONTROLLER_PORT }}";
 password = "{{ RSPAMD_PASSWORD }}";

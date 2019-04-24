@@ -1,4 +1,4 @@
-bind_socket = "*:{{ WORKER_PROXY_PORT }}";
+bind_socket = "*:{{ RSPAMD_WORKER_PROXY_PORT }}";
 
 upstream "local" {
     default = yes;
