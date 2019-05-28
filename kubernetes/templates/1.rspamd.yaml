@@ -19,8 +19,6 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: {{ .Values.name }}
-            - configMapRef:
                 name: services-info
           ports:
             - name: rspamd1
