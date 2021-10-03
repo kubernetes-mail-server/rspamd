@@ -1,0 +1,97 @@
+name: build and deploy container
+
+on: 
+  push:
+    branches: [master]
+
+env:
+  CLUSTER_CONFIG: ${{ secrets.CLUSTER_CONFIG }}
+  KUBECONFIG: kubeconfig
+  REPO: ghcr.io/kubernetes-mail-server
+  NAME: rspamd
+  NAMESPACE: mail-server
+  REPLICAS: 1
+  HELM: https://get.helm.sh/helm-v3.3.1-linux-amd64.tar.gz
+  KUBECTL: https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.docker_build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Set up Docker Buildx
+        id: Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      
+      - name: Login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: ${{ env.REPO }}/${{ env.NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+      
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      DIGEST: ${{ needs.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Setup Tools
+        run: |
+          echo "${GITHUB_WORKSPACE}" >> ${GITHUB_PATH}
+          curl -L ${KUBECTL} -o ${GITHUB_WORKSPACE}/kubectl
+          curl -L ${HELM} | tar xzO linux-amd64/helm > ${GITHUB_WORKSPACE}/helm
+          chmod +x ${GITHUB_WORKSPACE}/helm ${GITHUB_WORKSPACE}/kubectl
+          echo "${CLUSTER_CONFIG}" > ${GITHUB_WORKSPACE}/kubeconfig          
+
+      - name: Scale down
+        run: | 
+          kubectl get pods -n ${NAMESPACE}
+          kubectl scale --replicas=0 -n ${NAMESPACE} deployment/${NAME} || true
+          kubectl get deployments -n ${NAMESPACE}
+
+      - name: Install
+        run: | 
+          helm template \
+            --set name=${NAME} \
+            --set namespace=${NAMESPACE} \
+            --set port_0=$(kubectl get cm -n ${NAMESPACE} services-info -o=jsonpath="{.data.RSPAMD_PORT_0}") \
+            --set port_1=$(kubectl get cm -n ${NAMESPACE} services-info -o=jsonpath="{.data.RSPAMD_PORT_1}") \
+            --set port_2=$(kubectl get cm -n ${NAMESPACE} services-info -o=jsonpath="{.data.RSPAMD_PORT_2}") \
+            --set repository=${REPO}/${NAME}@${DIGEST} \
+            ${GITHUB_WORKSPACE}/kubernetes | kubectl apply -f -
+
+      - name: Scale up
+        run: | 
+          kubectl scale --replicas=${REPLICAS} -n ${NAMESPACE} deployment/${NAME}
+          kubectl get deployments -n ${NAMESPACE}
