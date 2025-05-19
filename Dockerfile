@@ -1,12 +1,6 @@
 FROM alpine:edge
 
-ENV ALPINE_VERSION=3.8
-ENV ALPINE_MIRROR=http://nl.alpinelinux.org/alpine
-
-RUN set -xe \
-	&& echo ${ALPINE_MIRROR}/v${ALPINE_VERSION}/main > /etc/apk/repositories \
-    && echo ${ALPINE_MIRROR}/v${ALPINE_VERSION}/community >> /etc/apk/repositories \
-    && apk add --no-cache rspamd rspamd-controller rspamd-proxy ca-certificates
+RUN apk add --no-cache rspamd rspamd-controller rspamd-proxy ca-certificates
 
 RUN mkdir /run/rspamd
 COPY config /etc/rspamd/local.d
