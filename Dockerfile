@@ -14,4 +14,4 @@ RUN sed -i '/fuzzy/,$d' /etc/rspamd/rspamd.conf
 EXPOSE 11332/tcp 11333/tcp 11334/tcp
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/usr/sbin/rspamd", "-i", "-f", "-u", "root", "-g", "root"]
+CMD ["/usr/bin/rspamd", "-i", "-f", "-u", "root", "-g", "root"]
