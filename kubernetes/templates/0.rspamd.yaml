@@ -26,6 +26,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: services-info
+            # Last, so its RSPAMD_PASSWORD (the controller's) replaces the placeholder in services-info.
+            # Created by hand on the cluster, never committed.
+            - secretRef:
+                name: rspamd-controller
           ports:
             - name: rspamd1
               containerPort: {{ .Values.port_0 }}
